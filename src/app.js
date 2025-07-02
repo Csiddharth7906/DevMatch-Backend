@@ -17,6 +17,9 @@ app.delete('/user',(req,res)=>{
 app.patch('/user',(req,res)=>{
   res.send(`User with ID updated`);
 });
+app.put('/user',(req,res)=>{
+  res.send(`User with ID updated`);
+});
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
