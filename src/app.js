@@ -6,7 +6,7 @@ const port=100;
 const data= require("./user.json")
 
 app.use("/admin",adminAuth);
-app.get("/user",userAuth,(req,res,next)=>{
+app.get("/user",userAuth,(req, res,next)=>{
   res.send("User data")
 })
 app.get("/admin/getData",(req,res,next)=>{
