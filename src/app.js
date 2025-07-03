@@ -1,27 +1,23 @@
-const  fs = require('fs');
+const fs =require("fs")
 const express = require('express');
+const {adminAuth,userAuth}=require("./middleware/auth")
 const app = express();
 const port=100;
-const data=require('./user.json');
-app.get('/user', (req, res) => {
-  res.send(data); 
-});
-app.post('/user',(req,res)=>{
-  console.log("Data is saved in daatbase");
-  res.send('User Created!');
-})
-app.delete('/user',(req,res)=>{
-  
-  res.send(`User with ID  deleted`);
-});
-app.patch('/user',(req,res)=>{
-  res.send(`User with ID updated`);
-});
-app.put('/user',(req,res)=>{
-  res.send(`User with ID updated`);
-});
+const data= require("./user.json")
 
-app.listen(port, () => {
+app.use("/admin",adminAuth);
+app.get("/user",userAuth,(req,res,next)=>{
+  res.send("User data")
+})
+app.get("/admin/getData",(req,res,next)=>{
+  res.send(data) 
+  
+})
+app.get("/admin/DeleteData",(req,res,next)=>{
+  res.send("DataGotDeleted")
+})
+
+app.listen(port, () => { 
   console.log(`Server is running on http://localhost:${port}`);
 });
 
