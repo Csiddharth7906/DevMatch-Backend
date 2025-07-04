@@ -4,6 +4,25 @@ const connectDB = require('./config/database');
 const port = 3000;
 
 const app = express();
+const User = require('./models/user');
+app.post('/signup', async (req, res) => {
+           
+  const user = new User({
+    firstName: "Siddharth",
+    lastName: "Chauhan",
+    email: "siddharth@gmail.com",
+    password: "Siddharth0"
+  });
+  try{
+    await user.save();
+    res.send("User has been created successfully");
+
+  }catch(err){
+
+    res.status(400).send(err);
+   
+  }
+})
 
 connectDB().then(()=>{
         console.log("Database is connected");
