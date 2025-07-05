@@ -24,7 +24,7 @@ app.get("/user", async (req, res) => {
   const email = req.body.email;
   
       try{
-        const users = await User.findOne({email: email }).sort({ _id: -2 });
+        const users = await User.findOne({email: email }).sort({ _id: -1 });
         if(!users){
           res.status(404).send("User not found");
           
@@ -38,6 +38,18 @@ app.get("/user", async (req, res) => {
         res.status(500).send("Server Error");
       }
 })
+
+//delete request to delete a user. 
+app.delete("/user", async (req, res) => {
+  const id = req.body._id;
+  try{
+        const users = await User.findByIdAndDelete(id)
+       
+        res.send("User has been deleted successfully");
+      }  catch(err){
+        res.status(500).send("Server Error");
+      }
+})
 //Feed Api - Get All Users
 app.get("/feed",  async (req, res) => {
   try {
@@ -46,6 +58,24 @@ app.get("/feed",  async (req, res) => {
   } catch (error) {
     res.status(500).send("Server Error");   
   }
+})
+
+//Update request to update a user's details. 
+app.patch("/user", async (req, res) => {
+   
+   const data = req.body;
+   const id = req.body._id;
+   try{
+   await User.findByIdAndUpdate(id, data   );
+   if(!id){
+     res.status(404).send("User not found");
+   }
+   res.send("User has been updated successfully");
+   }catch(err){
+    res.status(400).send(err);
+   
+   }
+
 })
 connectDB().then(()=>{
         console.log("Database is connected");
