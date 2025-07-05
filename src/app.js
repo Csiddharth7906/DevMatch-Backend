@@ -6,6 +6,7 @@ const port = 3000;
 const app = express();
 const User = require('./models/user');
 app.use(express.json());
+//Post request to create a new user. This request requires a JSON payload with the user's name, email, and password. 
 app.post('/signup', async (req, res) => {
            
   const user = new User(req.body);
@@ -18,7 +19,34 @@ app.post('/signup', async (req, res) => {
   }
  
 })
-
+ 
+app.get("/user", async (req, res) => {
+  const email = req.body.email;
+  
+      try{
+        const users = await User.findOne({email: email }).sort({ _id: -2 });
+        if(!users){
+          res.status(404).send("User not found");
+          
+        }
+        // if(users.length === 0){
+        //   res.status(404).send("User not found");
+          
+        // }
+        res.send(users);
+      }  catch(err){
+        res.status(500).send("Server Error");
+      }
+})
+//Feed Api - Get All Users
+app.get("/feed",  async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.send(users);
+  } catch (error) {
+    res.status(500).send("Server Error");   
+  }
+})
 connectDB().then(()=>{
         console.log("Database is connected");
         
