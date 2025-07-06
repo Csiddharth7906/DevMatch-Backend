@@ -15,7 +15,9 @@ app.post('/signup', async (req, res) => {
     await user.save();
     res.send("User has been created successfully");
   }catch(err){
+
     res.status(400).send(err);
+
   }
  
 })
@@ -66,13 +68,13 @@ app.patch("/user", async (req, res) => {
    const data = req.body;
    const id = req.body._id;
    try{
-   await User.findByIdAndUpdate(id, data   );
+   await User.findByIdAndUpdate(id , data , {runValidators: true}  );
    if(!id){
      res.status(404).send("User not found");
    }
    res.send("User has been updated successfully");
    }catch(err){
-    res.status(400).send(err);
+    res.status(400).send("Update failed "+err);
    
    }
 
@@ -81,7 +83,7 @@ connectDB().then(()=>{
         console.log("Database is connected");
         
 app.listen(port, () => { 
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on http://localhost:${port}`); 
 });
 
          
