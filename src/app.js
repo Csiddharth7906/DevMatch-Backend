@@ -1,26 +1,35 @@
-
 const express = require('express');
 const connectDB = require('./config/database');
+const validateSignUpData = require("./utils/validation");
+const bcrypt = require('bcrypt');
 const port = 3000;
 
 const app = express();
 const User = require('./models/user');
 app.use(express.json());
 //Post request to create a new user. This request requires a JSON payload with the user's name, email, and password. 
-app.post('/signup', async (req, res) => {
-           
-  const user = new User(req.body);
-  // Save the user to the database
-  try{
+app.post("/signup", async (req, res) => {
+  try {
+    //validation of data
+    validateSignUpData(req);
+    const { firstName, lastName, email, password } = req.body;
+    //encrypt the passsword
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      firstName,
+      lastName,
+      email,
+      password: passwordHash,
+    });
+    // Save the user to the database
+
     await user.save();
     res.send("User has been created successfully");
-  }catch(err){
-
-    res.status(400).send(err);
-
+  } catch (err) {
+    res.status(400).send("ERROR : " + err);
   }
- 
-})
+});
  
 app.get("/user", async (req, res) => {
   const email = req.body.email;

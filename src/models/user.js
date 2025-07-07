@@ -8,12 +8,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 4,
       maxlength: 50,
-      validate(value) {
-        const validNames = /^[a-zA-Z]+$/;
-        if (!validNames.test(value)) {
-          throw new Error("Invalid first name");
-        }
-      },
+      
     },
     lastName: {
       type: String,
