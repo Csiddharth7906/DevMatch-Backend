@@ -1,56 +1,96 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
-const userSchema =  new mongoose.Schema({
+const userSchema = new mongoose.Schema(
+  {
     firstName: {
-        type : String,
-        required:true,
-        minlength:3,
-        maxlength:50,
-        
+      type: String,
+      required: true,
+      minlength: 4,
+      maxlength: 50,
+      validate(value) {
+        const validNames = /^[a-zA-Z]+$/;
+        if (!validNames.test(value)) {
+          throw new Error("Invalid first name");
+        }
+      },
     },
     lastName: {
-        type : String,
+      type: String,
+      
+      maxlength: 50,
+      validate(value) {
+        const validNames = /^[a-zA-Z]+$/;
+        if (!validNames.test(value)) {
+          throw new Error("Invalid last name");
+        }
+      },
     },
     email: {
-        type :String,
-        required:true,
-        unique:true,
-        lowercase: true,
-        trim: true,
-    
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Invalid email address");
+        }
+    }
     },
     password: {
-        type : String,
-        required:true,
-    },
-    age:{
-        type : Number,
-        min:18,
-        
-          
-    },
-    gender:{
-        type : String,
-        validate(value){
-            const validGenders = ["Male", "Female", "Other"];
-            if(!validGenders.includes(value)){
-                throw new Error("Invalid gender");
-            }
+      type: String,
+      required: true,
+      minlength: 4,
+      validate(value) {
+        if(!validator.isStrongPassword(value)){
+            throw new Error("Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character");
         }
+      }
     },
-    photoUrl:{
-        type : String,
-         default: "https://geographyandyou.com/images/user-profile.png",
+    age: {
+      type: Number,
+      min: 18,
+      validate(value) {
+        if (value <= 0) {
+          throw new Error("Age must be a positive integer");
+        }
+      },
     },
-    about:{
-        type : String,
-        default: "I am a passionate developer ",
+    gender: {
+      type: String,
+      validate(value) {
+        const validGenders = ["Male", "Female", "Other"];
+        if (!validGenders.includes(value)) {
+          throw new Error("Invalid gender");
+        }
+      },
     },
-    skills:{
-        type : [String],
-    }
-
-
-},{ timestamps: true });
+    photoUrl: {
+      type: String,
+      default: "https://geographyandyou.com/images/user-profile.png",
+      validate(value) {
+        if(!validator.isURL(value)){
+            throw new Error("Invalid photo URL");
+        }
+      }
+    },
+    about: {
+      type: String,
+      default: "I am a passionate developer ",
+      minlength: 20,
+      maxlength: 500,
+    },
+    skills: {
+      type: [String],
+      validate(value) {
+        if (value.length > 10) {
+          throw new Error("Skills list should not exceed 10 items");
+        }
+      },
+    },
+  },
+  { timestamps: true }
+);
 
 module.exports = mongoose.model("User", userSchema);

@@ -63,22 +63,27 @@ app.get("/feed",  async (req, res) => {
 })
 
 //Update request to update a user's details. 
-app.patch("/user", async (req, res) => {
-   
-   const data = req.body;
-   const id = req.body._id;
-   try{
-   await User.findByIdAndUpdate(id , data , {runValidators: true}  );
-   if(!id){
-     res.status(404).send("User not found");
-   }
-   res.send("User has been updated successfully");
-   }catch(err){
-    res.status(400).send("Update failed "+err);
-   
-   }
+app.patch("/user/:id", async (req, res) => {
+  const data = req.body;
+  const id = req.params?.id;
 
-})
+  try {
+    const ALLOWED_UPDATE = ["photoUrl", "about", "gender", "age", "skills"];
+    const isUpdateAllowed = Object.keys(data).every((key) =>
+      ALLOWED_UPDATE.includes(key)
+    );
+    if (!isUpdateAllowed) {
+      throw new Error("Invalid update");
+    }
+    const user = await User.findByIdAndUpdate(id, data, {
+      runValidators: true,
+    });
+
+    res.send("User has been updated successfully");
+  } catch (err) {
+    res.status(400).send("Update failed " + err);
+  }
+});
 connectDB().then(()=>{
         console.log("Database is connected");
         
