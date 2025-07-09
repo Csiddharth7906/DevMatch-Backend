@@ -5,7 +5,9 @@ const bcrypt = require('bcrypt');
 const port = 3000;
 const app = express();
 const User = require('./models/user');
+const cookieParser = require('cookie-parser');
 app.use(express.json());
+app.use(cookieParser());
 //Post request to create a new user. This request requires a JSON payload with the user's name, email, and password. 
 app.post("/signup", async (req, res) => {
   try {
@@ -34,11 +36,16 @@ app.post("/login", async (req, res) => {
   try{
      const {email,password} = req.body;
      const user = await User.findOne({email: email});
+  
      if(!user){
-       res.status(404).send("email not found");
+       res.status(404).send("invalid credentials");
      }
      const isPasswordValid = await bcrypt.compare(password, user.password);
      if(isPasswordValid){
+      
+      res.cookie('token',"sadakcbckc");
+      //Add the token to cookie and send the response back to the client
+
        res.send("Logged In successfully");
      }else{
       throw new Error("Password is incorrect");
@@ -47,6 +54,15 @@ app.post("/login", async (req, res) => {
     res.status(400).send("Invalid credentials");
   }
 })
+
+app.get("/profile", async (req, res) => {
+    const cookie = req.cookies;
+    console.log(cookie);
+    res.send("Profile Page");
+    
+    })
+    
+
 app.get("/user", async (req, res) => {
   const email = req.body.email;
   
