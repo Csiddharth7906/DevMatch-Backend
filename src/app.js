@@ -6,8 +6,11 @@ const port = 3000;
 const app = express();
 const User = require('./models/user');
 const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+const {userAuth} = require('./middleware/auth');
 app.use(express.json());
 app.use(cookieParser());
+
 //Post request to create a new user. This request requires a JSON payload with the user's name, email, and password. 
 app.post("/signup", async (req, res) => {
   try {
@@ -43,9 +46,12 @@ app.post("/login", async (req, res) => {
      const isPasswordValid = await bcrypt.compare(password, user.password);
      if(isPasswordValid){
       
-      res.cookie('token',"sadakcbckc");
+      //Create and sign a JWT token
+      const token = await jwt.sign({ id: user._id }, 'DEV@sid@123');
+      
       //Add the token to cookie and send the response back to the client
-
+      res.cookie('token', token, );
+    
        res.send("Logged In successfully");
      }else{
       throw new Error("Password is incorrect");
@@ -55,12 +61,15 @@ app.post("/login", async (req, res) => {
   }
 })
 
-app.get("/profile", async (req, res) => {
-    const cookie = req.cookies;
-    console.log(cookie);
-    res.send("Profile Page");
+app.get("/profile",userAuth, async (req, res) => {
+    try {
+    const user=req.user;
+    res.send(user);
+    } catch (error) {
+       res.status(401).send(error.message);
+    }
     
-    })
+    })  
     
 
 app.get("/user", async (req, res) => {
