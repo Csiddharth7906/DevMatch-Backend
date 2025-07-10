@@ -71,69 +71,11 @@ app.get("/profile",userAuth, async (req, res) => {
     
     })  
     
-
-app.get("/user", async (req, res) => {
-  const email = req.body.email;
-  
-      try{
-        const users = await User.findOne({email: email }).sort({ _id: -1 });
-        if(!users){
-          res.status(404).send("User not found");
-          
-        }
-        // if(users.length === 0){
-        //   res.status(404).send("User not found");
-          
-        // }
-        res.send(users);
-      }  catch(err){
-        res.status(500).send("Server Error");
-      }
+app.post("/sendConnectionRequest",userAuth, async (req, res) => {
+     const user = req.user;
+     console.log("Sending connection request to: ");
+     res.send(user.firstName+" has sent a connection request to you.");
 })
-
-//delete request to delete a user. 
-app.delete("/user", async (req, res) => {
-  const id = req.body._id;
-  try{
-        const users = await User.findByIdAndDelete(id)
-       
-        res.send("User has been deleted successfully");
-      }  catch(err){
-        res.status(500).send("Server Error");
-      }
-})
-//Feed Api - Get All Users
-app.get("/feed",  async (req, res) => {
-  try {
-    const users = await User.find({});
-    res.send(users);
-  } catch (error) {
-    res.status(500).send("Server Error");   
-  }
-})
-
-//Update request to update a user's details. 
-app.patch("/user/:id", async (req, res) => {
-  const data = req.body;
-  const id = req.params?.id;
-
-  try {
-    const ALLOWED_UPDATE = ["photoUrl", "about", "gender", "age", "skills"];
-    const isUpdateAllowed = Object.keys(data).every((key) =>
-      ALLOWED_UPDATE.includes(key)
-    );
-    if (!isUpdateAllowed) {
-      throw new Error("Invalid update");
-    }
-    const user = await User.findByIdAndUpdate(id, data, {
-      runValidators: true,
-    });
-
-    res.send("User has been updated successfully");
-  } catch (err) {
-    res.status(400).send("Update failed " + err);
-  }
-});
 connectDB().then(()=>{
         console.log("Database is connected");
         
