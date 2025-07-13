@@ -1,76 +1,24 @@
 const express = require('express');
 const connectDB = require('./config/database');
-const validateSignUpData = require("./utils/validation");
-const bcrypt = require('bcrypt');
 const port = 3000;
 const app = express();
 const User = require('./models/user');
-const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const {userAuth} = require('./middleware/auth');
+const cookieParser = require('cookie-parser');
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const requestRouter = require("./routes/request");
 app.use(express.json());
 app.use(cookieParser());
+app.use("/",authRouter);
+app.use("/",profileRouter);
+app.use("/",requestRouter);
+
+                      
 
 //Post request to create a new user. This request requires a JSON payload with the user's name, email, and password. 
-app.post("/signup", async (req, res) => {
-  try {
-    //validation of data
-    validateSignUpData(req);
-    const { firstName, lastName, email, password } = req.body;
-    //encrypt the passsword
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    const user = new User({
-      firstName,
-      lastName,
-      email,
-      password: passwordHash,
-    });
-    // Save the user to the database
-
-    await user.save();
-    res.send("User has been created successfully");
-  } catch (err) {
-    res.status(400).send("ERROR : " + err);
-  }
-});
- 
-app.post("/login", async (req, res) => {
-  try{
-     const {email,password} = req.body;
-     const user = await User.findOne({email: email});
-  
-     if(!user){
-       res.status(404).send("invalid credentials");
-     }
-     const isPasswordValid =   await user.validatePassword(password);
-     if(isPasswordValid){
-      
-      //Create and sign a JWT token
-      const token = await user.getJWT();
-      
-      //Add the token to cookie and send the response back to the client
-      res.cookie('token', token, {  expires: new Date(Date.now() + 8 * 3600000)} );
-    
-       res.send("Logged In successfully");
-     }else{
-      throw new Error("Password is incorrect");
-     }
-  } catch(err){
-    res.status(400).send("Invalid credentials");
-  }
-})
-
-app.get("/profile",userAuth, async (req, res) => {
-    try {
-    const user=req.user;
-    res.send(user);
-    } catch (error) {
-       res.status(401).send(error.message);
-    }
-    
-    })  
-    
+   
 app.post("/sendConnectionRequest",userAuth, async (req, res) => {
      const user = req.user;
      console.log("Sending connection request to: ");
