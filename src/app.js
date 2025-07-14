@@ -19,11 +19,7 @@ app.use("/",requestRouter);
 
 //Post request to create a new user. This request requires a JSON payload with the user's name, email, and password. 
    
-app.post("/sendConnectionRequest",userAuth, async (req, res) => {
-     const user = req.user;
-     console.log("Sending connection request to: ");
-     res.send(user.firstName+" has sent a connection request to you.");
-})
+
 connectDB().then(()=>{
         console.log("Database is connected");
         
