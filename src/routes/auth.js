@@ -63,4 +63,5 @@ authRouter.post("/logout", async (req,res) =>{
   res.send("Logout gullu");
 })
 
+
 module.exports = authRouter;
