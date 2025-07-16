@@ -17,7 +17,6 @@ requestRouter.post("/request/send/:status/:toUserId",userAuth, async (req, res) 
       //  if (fromUserId.toString() === toUserId) {
       //        return res.status(400).json({ message: "Invalid Request" });
       // }
-      
       const toUser = await  User.findById(toUserId);
       if(!toUser){
             return res.status(404).json({message:"User does not exist"})
@@ -40,7 +39,7 @@ requestRouter.post("/request/send/:status/:toUserId",userAuth, async (req, res) 
        });
        const data = await connectionRequest.save();
        res.json({
-          message:"Connection request sent Succesful",
+          message: req.user.firstName + " is " + status + " in "+ toUser.firstName,
           data
        })
 
