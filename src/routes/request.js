@@ -62,12 +62,12 @@ requestRouter.post("/request/review/:status/:requestId",userAuth,async (req,res)
       status:"interested",
     });
     if(!connectionRequest){
-      return res.status(404).json({message:"Connection request not found"});
+      return res.status(404).json({message:"Connection request does not exits"});
     }
     connectionRequest.status = status;
 
     const data = await  connectionRequest.save();
-   res.json({message:"Connection request"+status,data});
+   res.json({message:"Connection request "+status,data});
   }catch(err){
    res.status(400).send("Error "+err.message)
   }
