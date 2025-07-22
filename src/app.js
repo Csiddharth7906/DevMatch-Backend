@@ -18,6 +18,7 @@ const allowedOrigins = [
   "https://devmatch.vercel.app"
 ];
 app.use(cors({
+<<<<<<< HEAD
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       return callback(null, true);
@@ -27,6 +28,11 @@ app.use(cors({
   },
   credentials: true
 }));
+=======
+  origin:"http://localhost:5173",
+ credentials:true
+}))
+>>>>>>> 0d77533e73427ce0bae2ef7995b34d9f93090c4e
 app.use(express.json());
 app.use(cookieParser());
 app.use("/",authRouter);
