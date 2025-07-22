@@ -15,7 +15,11 @@ const userRouter = require('./routes/user');
 const cors = require("cors");
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://dev-match-ui-o51l.vercel.app'],
+  origin: [
+    'http://localhost:5173', 
+    'https://dev-match-ui-o51l.vercel.app', // Removed trailing slash
+    'https://devmatch-backend.onrender.com' // Add your backend URL too
+  ],
   credentials: true
 }));
 
