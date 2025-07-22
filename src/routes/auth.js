@@ -9,6 +9,7 @@ const authRouter = express.Router();
 
 authRouter.post("/signup", async (req, res) => {
   try {
+  const isSecure = req.secure || req.headers['x-forwarded-proto'] === 'https';
     //validation of data
     validateSignUpData(req);
     const { firstName, lastName, email, password } = req.body;
@@ -25,10 +26,10 @@ authRouter.post("/signup", async (req, res) => {
 
    const savedUser = await user.save();
    const token = await savedUser.getJWT();
-   res.cookie('token', token, {
+  res.cookie('token', token, {
   httpOnly: true,
-  secure: true,      // Only send cookie over HTTPS (required by browsers for cross-site cookies)
-  sameSite: 'None',  // Allow cross-site cookie
+  secure: isSecure, // true if HTTPS, false if HTTP (local)
+  sameSite: isSecure ? 'None' : 'Lax',
   expires: new Date(Date.now() + 8 * 3600000)
 });
     res.json({message:"User has been created successfully",data:savedUser});
@@ -39,6 +40,8 @@ authRouter.post("/signup", async (req, res) => {
  
 authRouter.post("/login", async (req, res) => {
   try{
+    
+  const isSecure = req.secure || req.headers['x-forwarded-proto'] === 'https';
      const {email,password} = req.body;
      const user = await User.findOne({email: email});
   
@@ -52,7 +55,12 @@ authRouter.post("/login", async (req, res) => {
       const token = await user.getJWT();
       
       //Add the token to cookie and send the response back to the client
-      res.cookie('token', token, {  expires: new Date(Date.now() + 8 * 3600000)} );
+    res.cookie('token', token, {
+  httpOnly: true,
+  secure: isSecure, // true if HTTPS, false if HTTP (local)
+  sameSite: isSecure ? 'None' : 'Lax',
+  expires: new Date(Date.now() + 8 * 3600000)
+});
     
        res.send(user);
      }else{
