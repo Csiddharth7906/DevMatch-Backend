@@ -13,9 +13,12 @@ const requestRouter = require("./routes/request");
 const userRouter = require('./routes/user');
 const cors = require("cors");
 app.use(cors({
-  origin:"http://localhost:5173",
- credentials:true,
-}))
+  origin: [
+    "http://localhost:5173", // for local dev
+    "https://dev-match-ui-o51l.vercel.app" // your deployed frontend
+  ],
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 app.use("/",authRouter);
