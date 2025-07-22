@@ -15,7 +15,7 @@ const userRouter = require('./routes/user');
 const cors = require("cors");
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://devmatch.vercel.app"
+  "https://dev-match-ui-o51l.vercel.app/"
 ];
 app.use(cors({
 <<<<<<< HEAD
