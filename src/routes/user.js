@@ -13,7 +13,7 @@ userRouter.get("/user/requests/received",userAuth, async (req,res)=>{
             status: "interested"
          }).populate("fromUserId", USER_SAFE_DATA);
           
-        res.status(200).json({
+        res.json({
             message: "Connection requests received successfully",
             data: connectionRequests
         }); 
@@ -36,12 +36,11 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
         const data = connectionRequests.map((row )=>{ 
             if(row.fromUserId._id.equals(loggedInUser._id)){
                return row.toUserId
-            
+               
             }
-        
+
                 return   row.fromUserId
-            
-        });
+            });
         res.json({
             data: data
         });
@@ -78,11 +77,11 @@ userRouter.get("/feed", userAuth, async (req, res) => {
          ]   
          }) .select(USER_SAFE_DATA).skip(skip).limit(limit);
 
-     res.send(users);
+     res.json({data:users});
 
     }catch(err){
         res.status(400).json({message: "Error: "+err.message});
     }
 })
 
-module.exports = userRouter;
+module.exports = userRouter;   

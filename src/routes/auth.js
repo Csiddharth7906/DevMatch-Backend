@@ -23,8 +23,10 @@ authRouter.post("/signup", async (req, res) => {
     });
     // Save the user to the database
 
-    await user.save();
-    res.send("User has been created successfully");
+   const savedUser = await user.save();
+   const token = await savedUser.getJWT();
+   res.cookie('token', token, {  expires: new Date(Date.now() + 8 * 3600000)} );
+    res.json({message:"User has been created successfully",data:savedUser});
   } catch (err) {
     res.status(400).send("ERROR : " + err);
   }
@@ -47,7 +49,7 @@ authRouter.post("/login", async (req, res) => {
       //Add the token to cookie and send the response back to the client
       res.cookie('token', token, {  expires: new Date(Date.now() + 8 * 3600000)} );
     
-       res.send("Logged In successfully");
+       res.send(user);
      }else{
       throw new Error("Password is incorrect");
      }
