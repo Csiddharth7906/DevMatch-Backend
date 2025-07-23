@@ -69,18 +69,19 @@ authRouter.post("/login", async (req, res) => {
   } catch(err){
     res.status(400).send("Invalid credentials");
   }
-})
-authRouter.post("/logout", async (req,res) =>{
-   const isSecure = req.secure || req.headers['x-forwarded-proto'] === 'https';
-    res.cookie("token",null,{
-     httpOnly: true,
-     secure: isSecure, // true if HTTPS, false if HTTP (local)
-      sameSite: isSecure ? 'None' : 'Lax',
-    expires: new Date(Date.now())
-  })
+}) 
 
+authRouter.post("/logout", async (req, res) => {
+  const isSecure = req.secure || req.headers['x-forwarded-proto'] === 'https';
+  res.cookie("token", "", {
+    httpOnly: true,
+    secure: isSecure,
+    sameSite: isSecure ? 'None' : 'Lax',
+    expires: new Date(0), // Always works for all browsers
+    path: "/",            // Ensure path matches where cookie was set
+  });
   res.send("Logout gullu");
-})
+});
 
 
 module.exports = authRouter;
