@@ -56,11 +56,11 @@ authRouter.post("/login", async (req, res) => {
       
       //Add the token to cookie and send the response back to the client
     res.cookie('token', token, {
-  httpOnly: true,
-  secure: isSecure, // true if HTTPS, false if HTTP (local)
-  sameSite: isSecure ? 'None' : 'Lax',
-  expires: new Date(Date.now() + 8 * 3600000)
-});
+     httpOnly: true,
+     secure: isSecure, // true if HTTPS, false if HTTP (local)
+      sameSite: isSecure ? 'None' : 'Lax',
+     expires: new Date(Date.now() + 8 * 3600000)
+    });
     
        res.send(user);
      }else{
@@ -71,7 +71,11 @@ authRouter.post("/login", async (req, res) => {
   }
 })
 authRouter.post("/logout", async (req,res) =>{
-  res.cookie("token",null,{
+   const isSecure = req.secure || req.headers['x-forwarded-proto'] === 'https';
+    res.cookie("token",null,{
+     httpOnly: true,
+     secure: isSecure, // true if HTTPS, false if HTTP (local)
+      sameSite: isSecure ? 'None' : 'Lax',
     expires: new Date(Date.now())
   })
 
