@@ -21,34 +21,47 @@ app.use(cors({
   origin: [
     "http://localhost:5173", // for local dev
     "https://dev-match-ui-o51l.vercel.app" // your deployed frontend
-  ],  
-  credentials: true,
+  ],
+    credentials: true,
 }));
-app.use(express.json());
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// Routes
 app.use("/",authRouter);
 app.use("/",profileRouter);
 app.use("/",requestRouter);
 app.use("/",userRouter);
 app.use("/", chatRouter);
 
-const server = http.createServer(app);
-
-  initializeSocket(server)
- 
-
-//Post request to create a new user. This request requires a JSON payload with the user's name, email, and password. 
-   
-
-connectDB().then(()=>{
-        console.log("Database is connected");
-        
- server.listen(port, () => { 
-  console.log(`Server is running on http://localhost:${port}`); 
+// Error handling middleware for multer
+app.use((error, req, res, next) => {
+  if (error instanceof multer.MulterError) {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).send('File too large');
+    }
+  }
+  
+  if (error.message === 'Only image files are allowed!') {
+    return res.status(400).send('Only image files are allowed!');
+  }
+  
+  res.status(500).send('Something went wrong!');
 });
 
-         
+const server = http.createServer(app);
+initializeSocket(server)
+
+connectDB().then(()=>{
+    console.log("Database is connected");
+      
+    server.listen(port, () => {
+   console.log(`Server is running on http://localhost:${port}`);
+ });
+           
 }).catch(err=>{
   console.error("Error connecting to database");
 })
- 
