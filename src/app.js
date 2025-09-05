@@ -1,6 +1,8 @@
 require('dotenv').config()
 const express = require('express');
 const connectDB = require('./config/database');
+const passport = require('./config/passport');
+const session = require('express-session');
 const port = 3000;
 const app = express();
 const User = require('./models/user');
@@ -24,6 +26,18 @@ app.use(cors({
   ],
     credentials: true,
 }));
+
+// Session middleware for passport
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // set to true in production with HTTPS
+}));
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

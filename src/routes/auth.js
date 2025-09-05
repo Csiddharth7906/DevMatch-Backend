@@ -1,9 +1,9 @@
 const express = require("express");
-const validateSignUpData = require("../utils/validation");
+const passport = require('passport');
+const { validateSignUpData } = require("../utils/validation");
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
-
 
 const authRouter = express.Router();
 
@@ -83,5 +83,58 @@ authRouter.post("/logout", async (req, res) => {
   res.send("Logout gullu");
 });
 
+// Google OAuth Routes
+authRouter.get('/auth/google', 
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+authRouter.get('/auth/google/callback', 
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  async (req, res) => {
+    try {
+      const isSecure = req.secure || req.headers['x-forwarded-proto'] === 'https';
+      const token = await req.user.getJWT();
+      
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: isSecure,
+        sameSite: isSecure ? 'None' : 'Lax',
+        expires: new Date(Date.now() + 8 * 3600000)
+      });
+      
+      // Redirect to frontend
+      res.redirect(process.env.CLIENT_URL || 'http://localhost:5173');
+    } catch (error) {
+      res.redirect('/login?error=oauth_failed');
+    }
+  }
+);
+
+// GitHub OAuth Routes
+authRouter.get('/auth/github', 
+  passport.authenticate('github', { scope: ['user:email'] })
+);
+
+authRouter.get('/auth/github/callback', 
+  passport.authenticate('github', { failureRedirect: '/login' }),
+  async (req, res) => {
+    try {
+      const isSecure = req.secure || req.headers['x-forwarded-proto'] === 'https';
+      const token = await req.user.getJWT();
+      
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: isSecure,
+        sameSite: isSecure ? 'None' : 'Lax',
+        expires: new Date(Date.now() + 8 * 3600000)
+      });
+      
+      // Redirect to frontend
+      res.redirect(process.env.CLIENT_URL || 'http://localhost:5173');
+    } catch (error) {
+      res.redirect('/login?error=oauth_failed');
+    }
+  }
+);
 
 module.exports = authRouter;

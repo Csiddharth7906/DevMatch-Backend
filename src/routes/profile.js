@@ -1,6 +1,6 @@
 const express = require("express");
 const profileRouter = express.Router();
-const validateProfileEdit = require("../utils/validation");
+const { validateProfileEdit } = require("../utils/validation");
 const { userAuth } = require("../middleware/auth");
 const { uploadToCloudinary } = require("../utils/cloudinary");
 const upload = require("../middleware/upload");
