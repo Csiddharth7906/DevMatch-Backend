@@ -22,7 +22,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/auth/google/callback"
+    callbackURL: "https://devmatch-backend.onrender.com/auth/google/callback"
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         // Check if user already exists
@@ -63,7 +63,7 @@ passport.use(new GoogleStrategy({
 passport.use(new GitHubStrategy({
     clientID: process.env.GITHUB_CLIENT_ID,
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    callbackURL: "/auth/github/callback"
+    callbackURL: "https://devmatch-backend.onrender.com/auth/github/callback"
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         // Check if user already exists
