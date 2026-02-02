@@ -24,29 +24,36 @@ userRouter.get("/user/requests/received",userAuth, async (req,res)=>{
 });  
 //Get all the sent connection request for the LoggedIn user
 userRouter.get("/user/connections", userAuth, async (req, res) => {
-    try {
-        const loggedInUser = req.user;
-        const connectionRequests = await connectionRequest.find({
-          $or: [
-                { fromUserId: loggedInUser._id ,status: "accepted"},
-                { toUserId: loggedInUser._id ,status: "accepted"}
-            ]  
-        }).populate("fromUserId", USER_SAFE_DATA).populate("toUserId", USER_SAFE_DATA);
+   try {
+    const loggedInUser = req.user;
 
-        const data = connectionRequests.map((row )=>{ 
-            if(row.fromUserId._id.equals(loggedInUser._id)){
-               return row.toUserId
-               
-            }
+    // Step 1: get only ids (light query, no populate)
+    const connectionRequests = await connectionRequest.find({
+        $or: [
+            { fromUserId: loggedInUser._id, status: "accepted" },
+            { toUserId: loggedInUser._id, status: "accepted" }
+        ]
+    }).select("fromUserId toUserId");
 
-                return   row.fromUserId
-            });
-        res.json({
-            data: data
-        }); 
-    } catch (err) {
-        res.status(400).send("Error: " + err.message)
-    }
+    // Step 2: extract friend ids (same variable name: data)
+    const userIds = connectionRequests.map(row =>
+        row.fromUserId.equals(loggedInUser._id)
+            ? row.toUserId
+            : row.fromUserId
+    );
+
+    // Step 3: fetch users
+    const data = await User.find({
+        _id: { $in: userIds }
+    }).select(USER_SAFE_DATA);
+
+    res.json({ data });
+
+} catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+}
+
 });
 //Get all the feed api data for the logged in user
 userRouter.get("/feed", userAuth, async (req, res) => {
@@ -208,5 +215,42 @@ userRouter.post("/user/sync-github", userAuth, async (req, res) => {
         });
     }
 })
+// Search users by name (fuzzy search with similar letters)
+userRouter.get("/user/search", userAuth, async (req, res) => {
+    try {
+        const { name } = req.query;
+        const loggedInUser = req.user;
+        
+        if (!name || name.trim() === "") {
+            return res.status(400).json({ 
+                success: false,
+                message: "Search query is required" 
+            });
+        }
 
+        // Fuzzy search - searches for similar letters in first name or last name
+        const users = await User.find({
+            $or: [
+                { firstName: { $regex: name, $options: "i" } },  // Case-insensitive search
+                { lastName: { $regex: name, $options: "i" } }
+            ],
+            _id: { $ne: loggedInUser._id } // Exclude logged-in user
+        })
+        .select(USER_SAFE_DATA)
+        .limit(50); // Limit to 50 results
+
+        res.json({
+            success: true,
+            message: `Found ${users.length} users`,
+            data: users
+        });
+        
+    } catch (err) {
+        console.error("Search error:", err);
+        res.status(500).json({ 
+            success: false,
+            message: "Error searching users: " + err.message 
+        });
+    }
+});
 module.exports = userRouter;
